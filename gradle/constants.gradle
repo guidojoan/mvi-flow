@@ -1,0 +1,10 @@
+android {
+    buildTypes {
+        release {
+            buildConfigField 'String', 'SERVER', "\"https://www.astutify.com//\""
+        }
+        debug {
+            buildConfigField 'String', 'SERVER', "\"https://www.astutify.com//\""
+        }
+    }
+}

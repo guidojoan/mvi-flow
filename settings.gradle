@@ -1,0 +1,3 @@
+rootProject.name='Astutify MVI'
+include ':app'
+include ':mvi'

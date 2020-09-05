@@ -1,0 +1,28 @@
+Properties properties = new Properties()
+properties.load(new FileInputStream("local.properties"))
+
+bintray {
+    user = properties.getProperty("bintray.user")
+    key = properties.getProperty("bintray.apiKey")
+
+    publications = ['release']
+
+    pkg {
+        repo = repoName
+        name = sdkArtifactName
+        userOrg = sdkOrg
+        licenses = ['Apache-2.0']
+        vcsUrl = sdkVcsUrl
+        websiteUrl = sdkSite
+        desc = sdkDesc
+        publish = true
+        publicDownloadNumbers = true
+
+        version {
+            name = sdkVersion
+            desc = sdkVersionDesc
+            released = new Date()
+            vcsTag = sdkVcsTag
+        }
+    }
+}

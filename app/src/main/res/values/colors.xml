@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <color name="colorPrimary">#ffa726</color>
+    <color name="colorPrimaryVariant">#ffbd45</color>
+    <color name="colorSecondary">@color/colorPrimary</color>
+    <color name="colorSecondaryVariant">#E91E63</color>
+    <color name="statusBarBackground">@color/colorBackground</color>
+    <color name="colorBackground">#121212</color>
+
+    <color name="orange">#e57373</color>
+
+    <color name="firstLetterColor">#000000</color>
+    <color name="black">#000000</color>
+    <color name="grey">#3E3E3E</color>
+    <color name="white">#ffffff</color>
+
+</resources>

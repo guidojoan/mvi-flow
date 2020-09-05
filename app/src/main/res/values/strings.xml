@@ -1,0 +1,12 @@
+<resources>
+    <string name="app_name">Pepper</string>
+    <string name="generic_network_error">Network error, check your internet connection and try again</string>
+    <string name="add_ingredient">Add Ingredient</string>
+    <string name="ingredient_name">Ingredient Name</string>
+    <string name="name">Name</string>
+    <string name="save">Save</string>
+    <string name="search_ingredient">Search ingredient</string>
+    <string name="empty_state_ingredients">There are no ingredients \n add on with + button</string>
+    <string name="edit_ingredient">Edit Ingredient</string>
+    <string name="search">Search</string>
+</resources>
