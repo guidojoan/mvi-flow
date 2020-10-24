@@ -1,10 +1,10 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.astutify.mvi.demo">
+    package="com.astutify.mviflow.demo">
 
     <uses-permission android:name="android.permission.INTERNET" />
 
     <application
-        android:name=".App"
+        android:name="com.astutify.mviflow.demo.App"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
@@ -13,7 +13,7 @@
         android:theme="@style/AppTheme">
 
         <activity
-            android:name="com.astutify.mvi.demo.presentation.screen.ingredients.IngredientsView"
+            android:name="com.astutify.mviflow.demo.presentation.screen.ingredients.IngredientsView"
             android:windowSoftInputMode="adjustPan"
             android:screenOrientation="portrait">
             <intent-filter>
@@ -24,7 +24,7 @@
             </intent-filter>
         </activity>
 
-        <activity android:name="com.astutify.mvi.demo.presentation.screen.editingredient.EditIngredientView"
+        <activity android:name="com.astutify.mviflow.demo.presentation.screen.editingredient.EditIngredientView"
             android:screenOrientation="portrait"/>
     </application>
 </manifest>

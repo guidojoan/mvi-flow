@@ -1,6 +1,7 @@
 <resources>
     <string name="app_name">Pepper</string>
     <string name="generic_network_error">Network error, check your internet connection and try again</string>
+    <string name="unknown_error">An unknown error has occurred. Please try again</string>
     <string name="add_ingredient">Add Ingredient</string>
     <string name="ingredient_name">Ingredient Name</string>
     <string name="name">Name</string>

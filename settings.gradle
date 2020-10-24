@@ -1,3 +1,3 @@
-rootProject.name='Astutify MVI'
+rootProject.name='Astutify MVI-Flow'
 include ':app'
 include ':mvi'

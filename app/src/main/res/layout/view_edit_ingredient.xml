@@ -54,7 +54,7 @@
 
             </com.google.android.material.textfield.TextInputLayout>
 
-            <com.astutify.mvi.demo.presentation.screen.editingredient.view.LoadingButton
+            <com.astutify.mviflow.demo.presentation.screen.editingredient.view.LoadingButton
                 android:id="@+id/saveButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"

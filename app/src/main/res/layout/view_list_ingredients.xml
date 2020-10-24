@@ -30,7 +30,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/toolbar">
 
-        <com.astutify.mvi.demo.presentation.screen.ingredients.list.IngredientsListView
+        <com.astutify.mviflow.demo.presentation.screen.ingredients.list.IngredientsListView
             android:id="@+id/ingredients"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
@@ -41,7 +41,7 @@
 
     </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
-    <com.astutify.mvi.demo.presentation.screen.ingredients.view.StatusView
+    <com.astutify.mviflow.demo.presentation.screen.ingredients.view.StatusView
         android:id="@+id/statusView"
         android:layout_width="0dp"
         android:layout_height="0dp"

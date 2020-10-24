@@ -1,5 +1,6 @@
 apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-android-extensions'
 
 android {
     compileSdkVersion rootProject.ext.compileSdkVersion
@@ -25,23 +26,34 @@ android {
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
-    implementation "io.reactivex.rxjava2:rxandroid:2.1.1"
+    implementation deps.kotlin.core
+
+    implementation deps.coroutines.core
+    implementation deps.androidX.lifecycle
+
+    testImplementation deps.androidX.appCompat
+
+    testImplementation deps.coroutines.test
+    testImplementation deps.test.mockito
+    testImplementation deps.test.mockitoKotlin
+    testImplementation deps.test.mockitoAndroid
+    testImplementation 'org.robolectric:robolectric:4.4'
+    testImplementation 'junit:junit:4.+'
 }
 
 ext {
     sdkOrg = 'astutify'
-    sdkGroup = 'com.astutify.mvi'
+    sdkGroup = 'com.astutify.mviflow'
     sdkArtifactName = 'core'
-    repoName = 'mvi'
+    repoName = 'mviflow'
 
-    sdkVersionDesc = 'Android MVI libary' + sdkVersion
+    sdkVersionDesc = 'Android MVI libary to use with Flow' + sdkVersion
     sdkVcsTag = sdkVersion
 
-    sdkName = 'Android MVI library'
-    sdkDesc = 'Android MVI libary'
+    sdkName = 'Android MVI Flow library'
+    sdkDesc = 'Android MVI libary to use with Coroutines Flow'
     sdkSite = 'www.astutify.com'
-    sdkVcsUrl = 'https://github.com/guidojoan/mvi'
+    sdkVcsUrl = 'https://github.com/guidojoan/mvi-flow'
 
     sdkDevId = 'guidojoan'
     sdkDevName = 'Guido Joan Pereyra'
