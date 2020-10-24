@@ -1,6 +1,16 @@
+## Android MVI Flow 
+
+An Android MVI library to use with Coroutines - Flow.
+
+This project is a new version of my another library that was implemented using RXJava. I adapted it to use with Coroutines - Flow a new paradigm that is growing too fast in the Android developers world.
+
+
+
 ## What is MVI architecture?
 
-This is a library to create screens following the MVI architecture. To understand this architecture you have a plenty of articles. I recommend you to read the following links to understand this architecture.
+This is a library to build screens following the MVI architecture. To understand this architecture you have a plenty of articles. I recommend you to read the following links to understand this architecture in case that this concept is new for you.
+
+http://hannesdorfmann.com/android/model-view-intent
 
 http://hannesdorfmann.com/android/mosby3-mvi-1
 
@@ -64,7 +74,7 @@ If we join all of the components of the MVI library...
 
 ![](https://astutify.com/library/mvi/mvi_components.png)
 
-## How to use the MVI library.
+## How to use this MVI library.
 
 
 
@@ -114,6 +124,10 @@ sealed class IngredientsViewEffect {
 
 #### Implement the Reducer
 
+
+
+The reducer simply generates a new state to render on screen. In some cases it emits an Effect because the new state can't be generated with the information available or there is no need to render a new state on screen.
+
 ```kotlin
 class IngredientsViewReducer :
     Reducer<IngredientsViewState, IngredientsViewEvent, IngredientsViewEffect>() {
@@ -141,34 +155,88 @@ class IngredientsViewReducer :
 
 #### Implement the Effect Handler
 
+##### Example 1) Loading data from backend
+
+When the effect handler receives LoadData Effect:
+
+1. emits Loading Event to inform to the screen that is a process running 
+
+```kotlin
+.onStart { emit(IngredientsViewEvent.Loading) }
+```
+
+2. Invokes the use case to get the data from repository (take in account the thread in where you are running the process)
+
+   ```kotlin
+   getIngredientsUseCase()
+       .flowOn(Dispatchers.IO)
+   ```
+
+3. Verify the result and return one event for every different possible result.
+
+   ```kotlin
+   .map { response ->
+       response.fold(
+           {
+               IngredientsViewEvent.DataLoaded(it.map { toPresentation(it) })
+           },
+           {
+               IngredientsViewEvent.LoadingError
+           }
+       )
+   }
+   ```
+
+##### Example 2) Navigate to another screen
+
+1. Navigate to another screen
+2. Don't return an Event (terminal Effect)
+
+```kotlin
+private fun onGoToEditIngredient(effect: IngredientsViewEffect.GoToEditIngredient): Flow<IngredientsViewEvent> {
+    navigator.goToAddIngredient(effect.ingredient)
+    return emptyFlow()
+}
+```
+
+
+
+So the Effect Handler looks like:
+
 ```kotlin
 class IngredientsViewEffectHandler constructor(
-    private val main: Scheduler,
+    private val navigator: Navigator,
     private val getIngredientsUseCase: GetIngredientsUseCase
 ) : EffectHandler<IngredientsViewState, IngredientsViewEvent, IngredientsViewEffect> {
 
     override fun invoke(
         state: IngredientsViewState,
         effect: IngredientsViewEffect
-    ): Flowable<out IngredientsViewEvent> {
+    ): Flow<IngredientsViewEvent> {
         return when (effect) {
-            is IngredientsViewEffect.LoadData -> {
-                getIngredientsUseCase()
-                    .observeOn(main)
-                    .toFlowable()
-                    .map<IngredientsViewEvent> { response ->
-                        response.fold(
-                            {
-       							IngredientsViewEvent.DataLoaded(it.map {toPresentation(it)})
-                            },
-                            {
-                                IngredientsViewEvent.LoadingError
-                            }
-                        )
-                    }
-                    .startWith(IngredientsViewEvent.Loading)
-            }
+            is IngredientsViewEffect.LoadData -> onLoadData()
+            is IngredientsViewEffect.GoToAddIngredient -> onGoToAddIngredient()
         }
+    }
+
+    private fun onLoadData(): Flow<IngredientsViewEvent> {
+        return getIngredientsUseCase()
+             .flowOn(Dispatchers.IO)
+            .map { response ->
+                response.fold(
+                    {
+                        IngredientsViewEvent.DataLoaded(it.map { toPresentation(it) })
+                    },
+                    {
+                        IngredientsViewEvent.LoadingError
+                    }
+                )
+            }.onStart { emit(IngredientsViewEvent.Loading) }
+    }
+    
+    private fun onGoToAddIngredient(): Flow<IngredientsViewEvent> {
+        navigator.goToAddIngredient()
+        return emptyFlow()
     }
 }
 ```
@@ -181,13 +249,32 @@ class IngredientsViewEffectHandler constructor(
 
 - **initialEvent()**: In some cases you need to start the Screen with some Event that is not triggered by the user before to let the user interact with the UI. For example: load data from the backend when the user enters the Screen. 
 
-  If you don't need to do anything before the user interaction you must return null on this function.
+  If you don't need to do anything before the user interaction you should return null on this function.
 
 
 
 #### Create the screen
 
 It can be an Activity, Fragment or custom view.
+
+- The FeatureController must be attached to the lifecycle of the Activity / Fragment
+
+- We are using the LifecycleScope so you don't need to do anything when you finish the Activity / Fragment. The LifecycleScope finish all coroutines automatically preventing memory leaks
+
+  ```kotlin
+  override fun onCreate(savedInstanceState: Bundle?) {
+      super.onCreate(savedInstanceState)
+      lifecycle.addObserver(featureController)
+      
+      lifecycleScope.launchWhenStarted {
+          controller.connect()
+          .catch { showUnknownError() }
+          .collect {
+              render(it)
+          }
+      }
+  }
+  ```
 
 - Subscribe to the *FeatureController* to listen for the different *States* (The screen must have the logic to render the different states on window)
 
@@ -222,6 +309,27 @@ private fun initViews() {
 ```
 
 You have a full functional example app on this project with more complex logic.
+
+
+
+#### Saving instance state
+
+To save the instance state you only need to call the saveState method the feature controller passing the outState: Bundle given by the host Activity
+
+```kotlin
+override fun onSaveInstanceState(outState: Bundle) {
+    super.onSaveInstanceState(outState)
+    featureController.saveState(outState)
+}
+```
+
+To restore instance stance state get the parcelable parameter named Feature.FEATURE_SAVED_STATE from the savedInstanceState: Bundle given by the host Activity
+
+```kotlin
+private fun getInitialState(savedInstanceState: Bundle?): EditIngredientViewState? {
+    return savedInstanceState?.getParcelable(Feature.FEATURE_SAVED_STATE)
+}
+```
 
 
 
@@ -285,14 +393,12 @@ To test an Effect that must navigate to some screen and not return an Event
 ```kotlin
 @Test
 fun `should navigate to add ingredient when invoked with GoToAddIngredient Effect`(){
-    effectHandler.invoke(initialState,
-        IngredientsViewEffect.GoToAddIngredient
-    )
-        .test()
-        .assertNoErrors()
-        .assertNoValues()
+    runBlocking {
+        val result = effectHandler.invoke(initialState, IngredientsViewEffect.GoToAddIngredient).toList()
 
-    verify(navigator).goToAddIngredient()
+        assert(result.isEmpty())
+        verify(navigator).goToAddIngredient()
+    }
 }
 ```
 
@@ -301,15 +407,15 @@ To test an Effect that must executes an Use Case and return the result in an Eve
 ```kotlin
 @Test
 fun `should return Event with Ingredients when invoked with LoadData Effect`() {
-    whenever(getIngredientsUseCase()).thenReturn(Single.just(successfulResponse))
+    runBlocking {
+        whenever(getIngredientsUseCase()).thenReturn(flowOf(successfulResponse))
 
-    val result = effectHandler.invoke(initialState,IngredientsViewEffect.LoadData)
-        .test()
-        .values()
+        val result = effectHandler.invoke(initialState, IngredientsViewEffect.LoadData).toList()
 
-    assert(result[0] == IngredientsViewEvent.Loading)
-    assert((result[1] as IngredientsViewEvent.DataLoaded).ingredients == listOfIngredientsVM)
-    verify(getIngredientsUseCase).invoke()
+        assert(result[0] == IngredientsViewEvent.Loading)
+        assert((result[1] as IngredientsViewEvent.DataLoaded).ingredients == listOfIngredientsVM)
+        verify(getIngredientsUseCase).invoke()
+    }
 }
 ```
 
@@ -336,11 +442,11 @@ For example on our demo app:
 ```kotlin
 @Test
 fun renderIngredientName() {
-    runOnUiThread {
-        stateSubject.onNext(EditIngredientViewState(ingredient))
+    runBlocking {
+        stateSubject.emit(EditIngredientViewState(ingredient))
+        
+        onView(withId(R.id.ingredientName)).check(matches(withText(ingredient.name)))
     }
-
-    onView(withId(R.id.ingredientName)).check(matches(withText(ingredient.name)))
 }
 ```
 
@@ -359,13 +465,13 @@ For example on our demo app:
 ```kotlin
 @Test
 fun clickSave() {
-    runOnUiThread {
-        stateSubject.onNext(EditIngredientViewState(saveEnabled = true))
+    runBlocking {
+        stateSubject.emit(EditIngredientViewState(saveEnabled = true))
+
+        onView(withId(R.id.saveButton)).perform(click())
+
+        verify(viewController).accept(EditIngredientViewEvent.Save)
     }
-
-    onView(withId(R.id.saveButton)).perform(click())
-
-    verify(viewController).accept(EditIngredientViewEvent.Save)
 }
 ```
 
@@ -374,9 +480,10 @@ fun clickSave() {
 ## Setup the MVI library
 
 
+This library is hosted on Jcenter.
 
-##### With Gradle -> Jcenter
+##### With Gradle 
 
 ```kotlin
-implementation 'com.astutify.mvi:core:1.0.0'
+implementation 'com.astutify.mviflow:core:1.0.0'
 ```
