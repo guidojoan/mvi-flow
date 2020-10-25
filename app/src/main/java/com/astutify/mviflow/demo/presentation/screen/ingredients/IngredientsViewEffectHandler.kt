@@ -5,12 +5,12 @@ import com.astutify.mviflow.demo.domain.interactor.GetIngredientsUseCase
 import com.astutify.mviflow.demo.domain.interactor.SearchIngredientsUseCase
 import com.astutify.mviflow.demo.presentation.Navigator
 import com.astutify.mviflow.demo.presentation.model.toPresentation
+import com.astutify.mviflow.utils.startWithEvent
+import com.astutify.mviflow.utils.terminalEvent
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.onStart
 
 class IngredientsViewEffectHandler constructor(
     private val navigator: Navigator,
@@ -47,7 +47,7 @@ class IngredientsViewEffectHandler constructor(
                         IngredientsViewEvent.LoadingError
                     }
                 )
-            }.onStart { emit(IngredientsViewEvent.Loading) }
+            }.startWithEvent(IngredientsViewEvent.Loading)
     }
 
     private fun onSearch(effect: IngredientsViewEffect.Search): Flow<IngredientsViewEvent> {
@@ -68,17 +68,17 @@ class IngredientsViewEffectHandler constructor(
                     })
                 }
         } else {
-            emptyFlow()
+            terminalEvent()
         }
     }
 
     private fun onGoToEditIngredient(effect: IngredientsViewEffect.GoToEditIngredient): Flow<IngredientsViewEvent> {
         navigator.goToAddIngredient(effect.ingredient)
-        return emptyFlow()
+        return terminalEvent()
     }
 
     private fun onGoToAddIngredient(): Flow<IngredientsViewEvent> {
         navigator.goToAddIngredient()
-        return emptyFlow()
+        return terminalEvent()
     }
 }

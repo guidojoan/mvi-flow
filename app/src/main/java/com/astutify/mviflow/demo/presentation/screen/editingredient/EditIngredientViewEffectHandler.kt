@@ -6,7 +6,6 @@ import com.astutify.mviflow.demo.presentation.model.IngredientViewModel
 import com.astutify.mviflow.demo.utils.test.Mockable
 import com.astutify.mviflow.utils.terminalEvent
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.emptyFlow
 
 @Mockable
 class EditIngredientViewEffectHandler (
@@ -25,11 +24,11 @@ class EditIngredientViewEffectHandler (
 
     private fun onGoBack(): Flow<EditIngredientViewEvent> {
         navigator.goBack()
-        return emptyFlow()
+        return terminalEvent()
     }
 
     private fun saveIngredient(ingredient: IngredientViewModel): Flow<EditIngredientViewEvent> {
         navigator.finishAddIngredient(ingredient)
-        return emptyFlow()
+        return terminalEvent()
     }
 }
