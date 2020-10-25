@@ -85,5 +85,5 @@ dependencies {
     testImplementation deps.test.mockitoKotlin
     testImplementation deps.test.mockitoAndroid
 
-    implementation project(":mvi")
+    implementation project(':mviflow')
 }

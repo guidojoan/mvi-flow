@@ -30,15 +30,6 @@ dependencies {
 
     implementation deps.coroutines.core
     implementation deps.androidX.lifecycle
-
-    testImplementation deps.androidX.appCompat
-
-    testImplementation deps.coroutines.test
-    testImplementation deps.test.mockito
-    testImplementation deps.test.mockitoKotlin
-    testImplementation deps.test.mockitoAndroid
-    testImplementation 'org.robolectric:robolectric:4.4'
-    testImplementation 'junit:junit:4.+'
 }
 
 ext {
